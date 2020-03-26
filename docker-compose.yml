@@ -1,0 +1,15 @@
+version: "3.7"
+services:
+  streaming:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rtsp-mpeg-approach1
+    volumes: 
+      - ".:/streaming"
+    env_file: .env
+    ports:
+    - "8081:8081"
+    - "8082:8082"
+    - "8083:8083"
+    command: "tail -f /dev/null"
