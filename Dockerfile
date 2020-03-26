@@ -1,10 +1,12 @@
-FROM node:lts-alpine3.11
+FROM node:12.16.1-buster-slim
 
 WORKDIR /streaming
 
 COPY package*.json ./
 
-RUN npm install
+RUN apt-get update && \
+    apt-get install ffmpeg -y && \
+    npm install
 
 COPY . .
 
