@@ -20,8 +20,12 @@ services:
     volumes:
       - "./nginx:/etc/nginx"
       - "./static:/usr/share/nginx/html"
-    environment:
-      - NGINX_PORT=8080
     ports:
       - "8080:80"
     command: [nginx-debug, "-g", "daemon off;"]
+
+  redis:
+    image: redis:6.0-rc1-alpine3.11
+    container_name: rtsp-mpeg-approach1-db
+    ports: 
+      - "63790:63790"
