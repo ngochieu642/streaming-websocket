@@ -20,7 +20,6 @@ const socketServer = new WebSocket.Server({
 
 socketServer.connectionCount = 0;
 
-// Connections from Frontend
 socketServer.on("connection", (socket, request) => {
   socketServer.connectionCount++;
 
@@ -79,4 +78,8 @@ const streamServer = http.createServer((request, response) => {
   });
 });
 
+// Start Servers
 streamServer.listen(STREAM_PORT);
+app.listen(3000, () => {
+  console.log('Server started')
+})
