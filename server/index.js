@@ -1,5 +1,8 @@
 const fs = require("fs");
+
+const express = require("express");
 const http = require("http");
+
 const WebSocket = require("ws");
 
 const STREAM_SECRET = process.env.STREAM_SECRET;
@@ -7,8 +10,9 @@ const STREAM_PORT = process.env.STREAM_PORT;
 const WEBSOCKET_PORT = process.env.WEBSOCKET_PORT;
 const RECORD_STREAM = false;
 
-const streamServerList = [];
+const app = express();
 
+//  Web socket
 const socketServer = new WebSocket.Server({
   port: WEBSOCKET_PORT,
   perMessageDeflate: false

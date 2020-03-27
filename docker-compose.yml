@@ -3,10 +3,11 @@ services:
   streaming:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Server.Dockerfile
     container_name: rtsp-mpeg-approach1-server
     volumes:
-      - ".:/streaming"
+      - "./server:/server"
+      - "./script:/script"
     env_file: .env
     ports:
       - "8082:8082"

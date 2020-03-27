@@ -1,8 +1,8 @@
 FROM node:12.16.1-buster-slim
 
-WORKDIR /streaming
+WORKDIR /server
 
-COPY package*.json ./
+COPY ./server/package*.json ./
 
 RUN apt-get update && \
     apt-get install ffmpeg -y && \
