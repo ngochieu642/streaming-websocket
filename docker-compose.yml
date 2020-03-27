@@ -4,12 +4,22 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: rtsp-mpeg-approach1
-    volumes: 
+    container_name: rtsp-mpeg-approach1-server
+    volumes:
       - ".:/streaming"
     env_file: .env
     ports:
-    - "8081:8081"
-    - "8082:8082"
-    - "8083:8083"
+      - "8082:8082"
     command: "tail -f /dev/null"
+
+  frontend:
+    image: nginx:1.15.1
+    container_name: rtsp-mpeg-approach1-frontend
+    volumes:
+      - "./nginx:/etc/nginx"
+      - "./static:/usr/share/nginx/html"
+    environment:
+      - NGINX_PORT=8080
+    ports:
+      - "8080:80"
+    command: [nginx-debug, "-g", "daemon off;"]
