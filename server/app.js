@@ -11,6 +11,7 @@ const WEBSOCKET_PORT = process.env.WEBSOCKET_PORT;
 const RECORD_STREAM = false;
 
 const app = express();
+const routes = require('./routes');
 
 //  Web socket
 const socketServer = new WebSocket.Server({
@@ -78,8 +79,12 @@ const streamServer = http.createServer((request, response) => {
   });
 });
 
-// Start Servers
+// Start Streaming Servers
 streamServer.listen(STREAM_PORT);
-app.listen(3000, () => {
-  console.log("Server started");
+
+
+// Routing
+app.use(routes);
+const server = app.listen(3000, () => {
+  console.log("Server started on port " + server.address().port);
 });
