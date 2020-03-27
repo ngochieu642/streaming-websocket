@@ -81,5 +81,5 @@ const streamServer = http.createServer((request, response) => {
 // Start Servers
 streamServer.listen(STREAM_PORT);
 app.listen(3000, () => {
-  console.log('Server started')
-})
+  console.log("Server started");
+});
