@@ -1,16 +1,22 @@
+const ffmpeg = require("../util/ffmpeg");
+const hash = require("object-hash");
+
 exports.testAPI = (req, res, next) => {
-    res.json({"status":"OK"})
+  res.json({ status: "OK" });
 };
 
 exports.openCamera = (req, res, next) => {
-    console.log(req.body);
-    // hash the rtsp -> token
+  let rtspLink = req.body.rtsp;
 
-    // Use node process to open a stream with above token
+  if (!rtspLink)
+    res.json({ error: "missing rtsp link" });
 
-    // If rtsp not existed in redis, write value {rtsp-link :1}
-    // If already existed, plus 1 -> Count connections for each rtsp
+  let streamKey = hash.sha1(rtspLink);
+  // If already existed, plus 1 -> Count connections for each rtsp
 
-    // return token if success, else return failure code
-    res.json({"status":"OK Post"})
+  // If stream not existed
+  ffmpeg.openUsingScriptFile('./openStream.sh', rtspLink, streamKey);
+
+  // return token if success, else return failure code
+  res.json({ token: streamKey });
 };

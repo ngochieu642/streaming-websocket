@@ -6,6 +6,7 @@ COPY ./server/package*.json ./
 
 RUN apt-get update && \
     apt-get install ffmpeg -y && \
+    apt-get install procps -y && \
     npm install
 
 COPY . .
