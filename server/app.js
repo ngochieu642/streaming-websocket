@@ -1,8 +1,7 @@
 const fs = require("fs");
-
 const express = require("express");
 const http = require("http");
-
+const bodyParser = require('body-parser');
 const WebSocket = require("ws");
 
 const STREAM_PORT = process.env.STREAM_PORT;
@@ -79,4 +78,7 @@ const server = app.listen(3000, () => {
   console.log("Server started on port " + server.address().port);
 });
 
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(bodyParser.raw());
 app.use("/api/camera", cameraRoutes);
