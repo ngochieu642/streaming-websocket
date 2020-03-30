@@ -8,22 +8,33 @@ exports.childrenProcess = childrenProcess;
 exports.openUsingScriptFile = (pathToScriptFile, rtspLink, streamKey) => {
   try {
     let streamLink = `http://localhost:${STREAM_PORT}/${streamKey}`;
-    // const k = spawn(`bash ${pathToScriptFile}`, [rtspLink, streamLink] );
-    const k = spawn("bash", ["hello.sh"]);
 
-    k.stdout.on("data", data => {
-      console.log(`stdout: ${data}`);
+    const spawnParams = [pathToScriptFile, rtspLink, streamLink];
+    const spawnOpts = {
+      detached: true
+      // Allows killing of all of child's descendants.
+      // cf. http://azimi.me/2014/12/31/kill-child_process-node-js.html
+      //     https://github.com/nodejs/node-v0.x-archive/issues/1811
+    };
+
+    const child = spawn("bash", spawnParams, spawnOpts);
+
+    child.stdout.on("data", function(data) {
+      // console.log(`stdout: ${data}`);
     });
 
-    k.stderr.on("data", data => {
-      console.error(`stderr: ${data}`);
+    child.stderr.on("data", function(data) {
+      // console.error(`stderr: ${data}`);
     });
 
-    k.on("close", code => {
-      console.log(`child process exited with code ${code}`);
+    child.on("close", function(code, signal) {
+      console.log(
+        `child process exited with code ${code} and signal ${signal}`
+      );
     });
 
-    childrenProcess.push(k);
+    childrenProcess.push(child);
+
     console.log(childrenProcess.map(child => child.pid));
   } catch (err) {
     console.log(err);

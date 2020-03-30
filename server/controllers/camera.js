@@ -15,7 +15,7 @@ exports.openCamera = (req, res, next) => {
   // If already existed, plus 1 -> Count connections for each rtsp
 
   // If stream not existed
-  ffmpeg.openUsingScriptFile('./openStream.sh', rtspLink, streamKey);
+  ffmpeg.openUsingScriptFile('./util/openStream.sh', rtspLink, streamKey);
 
   // return token if success, else return failure code
   res.json({ token: streamKey });
