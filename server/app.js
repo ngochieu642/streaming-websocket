@@ -1,13 +1,14 @@
 const fs = require("fs");
 const express = require("express");
 const http = require("http");
-const bodyParser = require('body-parser');
+const bodyParser = require("body-parser");
 const WebSocket = require("ws");
 
 const STREAM_PORT = process.env.STREAM_PORT;
 const WEBSOCKET_PORT = process.env.WEBSOCKET_PORT;
 
-const cameraRoutes = require('./routes/api/camera');
+const cameraRoutes = require("./routes/api/camera");
+const { childrenProcess } = require("./util/ffmpeg");
 
 const app = express();
 
@@ -82,3 +83,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(bodyParser.raw());
 app.use("/api/camera", cameraRoutes);
+
+// Kill all child process
+process.stdin.resume();
+process.on("SIGINT", function() {
+  console.log("Got SIGINT.  Press Control-D to exit.");
+  for (let child of childrenProcess) {
+    console.log(`${child.pid}`);
+    child.kill();
+    console.log('killed')
+  }
+  process.exit();
+});
