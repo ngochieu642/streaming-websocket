@@ -22,7 +22,8 @@ const streamOpenValidators = [
         .not().isEmpty()
         .escape(),
     body('notifyOnReply').toBoolean()
-]
+];
+
 router.post(
   "/stream/open",
   // streamOpenValidators,

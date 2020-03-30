@@ -8,7 +8,7 @@ const STREAM_PORT = process.env.STREAM_PORT;
 const WEBSOCKET_PORT = process.env.WEBSOCKET_PORT;
 
 const cameraRoutes = require("./routes/api/camera");
-const { childrenProcess } = require("./util/ffmpeg");
+const { childrenProcess } = require("./util/stream");
 
 const app = express();
 
@@ -90,8 +90,9 @@ process.on("SIGINT", function() {
   console.log("Got SIGINT.  Press Control-D to exit.");
   for (let child of childrenProcess) {
     console.log(`${child.pid}`);
-    child.kill();
-    console.log('killed')
+    process.kill(-child.pid, "SIGTERM");
+    process.kill(-child.pid, "SIGKILL");
+    console.log("killed");
   }
   process.exit();
 });

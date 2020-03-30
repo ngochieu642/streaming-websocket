@@ -33,6 +33,12 @@ exports.openUsingScriptFile = (pathToScriptFile, rtspLink, streamKey) => {
       );
     });
 
+    child.on("exit", function(code, signal) {
+      console.log(
+        `child process exited with code ${code} and signal ${signal}`
+      );
+    });
+
     childrenProcess.push(child);
 
     console.log(childrenProcess.map(child => child.pid));

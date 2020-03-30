@@ -1,4 +1,4 @@
-const ffmpeg = require("../util/ffmpeg");
+const stream = require("../util/stream");
 const hash = require("object-hash");
 
 exports.testAPI = (req, res, next) => {
@@ -14,8 +14,10 @@ exports.openCamera = (req, res, next) => {
   let streamKey = hash.sha1(rtspLink);
   // If already existed, plus 1 -> Count connections for each rtsp
 
+
   // If stream not existed
-  ffmpeg.openUsingScriptFile('./util/openStream.sh', rtspLink, streamKey);
+  let shellFilePath = './util/openStream.sh';
+  setTimeout(stream.openUsingScriptFile, 0, shellFilePath, rtspLink, streamKey);
 
   // return token if success, else return failure code
   res.json({ token: streamKey });
