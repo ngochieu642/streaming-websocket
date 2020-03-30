@@ -5,10 +5,10 @@ const http = require("http");
 
 const WebSocket = require("ws");
 
-const STREAM_SECRET = process.env.STREAM_SECRET;
 const STREAM_PORT = process.env.STREAM_PORT;
 const WEBSOCKET_PORT = process.env.WEBSOCKET_PORT;
-const RECORD_STREAM = false;
+
+const cameraRoutes = require('./routes/api/camera');
 
 const app = express();
 const routes = require('./routes');
@@ -52,13 +52,6 @@ socketServer.broadcast = (data, params) => {
 const streamServer = http.createServer((request, response) => {
   let params = request.url.substr(1).split("/");
 
-  // if (params[0] !== STREAM_SECRET) {
-  //   console.log(
-  //     `Failed Stream Connection: ${request.socket.remoteAddress}:${request.socket.remotePort} Wrong Secret`
-  //   );
-  //   response.end();
-  // }
-
   response.connection.setTimeout(0);
   console.log(
     `Stream Connected: ${request.socket.remoteAddress}:${request.socket.remotePort}`
@@ -82,9 +75,10 @@ const streamServer = http.createServer((request, response) => {
 // Start Streaming Servers
 streamServer.listen(STREAM_PORT);
 
-
 // Routing
-app.use(routes);
 const server = app.listen(3000, () => {
   console.log("Server started on port " + server.address().port);
 });
+
+app.use(routes);
+app.use("/api/camera", cameraRoutes);
