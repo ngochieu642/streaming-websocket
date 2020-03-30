@@ -11,14 +11,23 @@
     </style>
   </head>
   <body>
+    <input type="text" id="rtsp-link" value="ws://0.0.0.0:8082/?token=12345678">
+    <button id="rtsp-btn">Stream</button>
     <h1 style="color: white;">Approach 1</h1>
     <canvas id="video-canvas"></canvas>
     <script type="text/javascript" src="jsmpeg.min.js"></script>
     <script type="text/javascript">
+      var player;
       var canvas = document.getElementById("video-canvas");
+      let rtspBtn = document.getElementById("rtsp-btn");
+
+      rtspBtn.addEventListener("click", function(event){
+        let url = document.getElementById("rtsp-link").value;
+        player = new JSMpeg.Player(url, { canvas: canvas });
+      })
       // var url = 'ws://'+document.location.hostname+':8082/';
-      var url = "ws://192.168.1.36:8082/?token=12345678";
-      var player = new JSMpeg.Player(url, { canvas: canvas });
+      // var url = "ws://0.0.0.0:8082/?token=12345678";
+      // var player = new JSMpeg.Player(url, { canvas: canvas });
     </script>
   </body>
 </html>
