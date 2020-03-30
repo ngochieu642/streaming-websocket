@@ -11,7 +11,6 @@ const WEBSOCKET_PORT = process.env.WEBSOCKET_PORT;
 const cameraRoutes = require('./routes/api/camera');
 
 const app = express();
-const routes = require('./routes');
 
 //  Web socket
 const socketServer = new WebSocket.Server({
@@ -80,5 +79,4 @@ const server = app.listen(3000, () => {
   console.log("Server started on port " + server.address().port);
 });
 
-app.use(routes);
 app.use("/api/camera", cameraRoutes);
