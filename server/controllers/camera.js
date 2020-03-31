@@ -20,6 +20,11 @@ exports.openCamera = async (req, res, next) => {
       streamKey
     );
 
+    let socketConnections = await database.CountConnections(
+      database.DatabaseClient,
+      streamKey
+    );
+
     // TODO: Reopen the stream if Connection in Redis = 0. Do after TODO in socketServer
     if (keyExisted) {
       debugCamera.info("Stream already existed");

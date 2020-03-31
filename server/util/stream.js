@@ -6,15 +6,31 @@ const WEBSOCKET_PORT = process.env.WEBSOCKET_PORT;
 
 const {
   DEBUG_CHILD_PROCESS: debugChildProcess,
-  DEBUG_STREAM: debugStream
+  DEBUG_STREAM: debugStream,
+  DEBUG_SERVER: debugServer,
 } = require("../util/constants").DEBUG;
 
 const { SERVER_IP, WEBSOCKET_SERVER_IP } = require("../util/constants");
 
-const childrenProcess = [];
+let childrenProcess = [];
 
-exports.childrenProcess = childrenProcess;
+exports.RemoveChildProcess = childToKill => {
+  childrenProcess = childrenProcess.filter(
+      child => child.pid !== childToKill.pid
+  );
+  process.kill(-childToKill.pid, "SIGTERM");
+  process.kill(-childToKill.pid, "SIGKILL");
+  debugChildProcess.info(`[socketServer.js ] Child ${childToKill.pid} killed`);
+};
 
+exports.AddChildProcess = childToAdd => {
+  childrenProcess.push(childToAdd);
+  debugChildProcess.info(`[stream.js] Child ${childToAdd.pid} added`);
+};
+
+exports.GetChildrenProcess = () => {
+  return childrenProcess;
+}
 /**
  *
  * This function return a streamKey from rtsp link
@@ -38,6 +54,7 @@ exports.getWebSocketLink = async input => {
 
 exports.openUsingScriptFile = async (pathToScriptFile, rtspLink) => {
   try {
+    let streamToken = await this.getStreamKey(rtspLink);
     let streamLink = await this.getStreamLink(rtspLink);
     let websocketLink = await this.getWebSocketLink(rtspLink);
 
@@ -57,9 +74,10 @@ exports.openUsingScriptFile = async (pathToScriptFile, rtspLink) => {
     };
 
     const child = spawn("bash", spawnParams, spawnOpts);
+    child.streamToken = streamToken;
 
     child.stdout.on("data", function(data) {
-      // console.log(`stdout: ${data}`);
+      debugStream.info(`stdout: ${data}`);
     });
 
     child.stderr.on("data", function(data) {
@@ -67,21 +85,25 @@ exports.openUsingScriptFile = async (pathToScriptFile, rtspLink) => {
     });
 
     child.on("close", function(code, signal) {
+      childrenProcess = childrenProcess.filter(eachChild => eachChild.pid !== child.pid);
       debugChildProcess.info(
-        `child process exited with code ${code} and signal ${signal}`
+        `CLOSED signal - child process ${child.pid} exited with code ${code} and signal ${signal}`
       );
+      debugChildProcess.info(`Children Process: [${childrenProcess.map(x => x.pid)}]`);
     });
 
     child.on("exit", function(code, signal) {
+      childrenProcess = [...childrenProcess].filter(eachChild => eachChild.pid !== child.pid);
       debugChildProcess.info(
-        `child process exited with code ${code} and signal ${signal}`
+        `EXIT SIGNAL - child process ${child.pid} exited with code ${code} and signal ${signal}`
       );
+      debugChildProcess.info(`Children Process: [${childrenProcess.map(x => x.pid)}]`);
     });
 
-    childrenProcess.push(child);
+    this.AddChildProcess(child);
 
     debugChildProcess.info(
-      `Children PIDs [${childrenProcess.map(child => child.pid)}]`
+      `[stream.js] Children PIDs [${childrenProcess.map(child => child.pid)}]`
     );
 
     return websocketLink;

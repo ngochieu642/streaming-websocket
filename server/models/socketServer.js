@@ -1,8 +1,13 @@
 //  Web socket
 const WebSocket = require("ws");
 
-const { DEBUG_WEB_SOCKET: debugWebSocket } = require("../util/constants").DEBUG;
+const {
+  DEBUG_WEB_SOCKET: debugWebSocket,
+  DEBUG_SERVER: debugServer,
+  DEBUG_CHILD_PROCESS: debugChildProcess
+} = require("../util/constants").DEBUG;
 const database = require("../util/database");
+const { RemoveChildProcess, GetChildrenProcess } = require("../util/stream");
 
 const WEBSOCKET_PORT = process.env.WEBSOCKET_PORT;
 
@@ -13,18 +18,25 @@ const socketServer = new WebSocket.Server({
 
 socketServer.connectionCount = 0;
 
-socketServer.on("connection", (socket, request) => {
+socketServer.on("connection", async (socket, request) => {
   socketServer.connectionCount++;
 
   socket.uuid = request.url.replace("/?token=", "");
 
-  database
-    .IncreaseKeyBy1(database.DatabaseClient, socket.uuid)
-    .then(function(rs) {
-      debugWebSocket.info(
-        `Increased connections for key ${socket.uuid}. Total connection for token ${socket.uuid}: ${rs}`
-      );
-    });
+  let keyExisted = await database.KeyExisted(
+    database.DatabaseClient,
+    socket.uuid
+  );
+
+  if (keyExisted) {
+    database
+      .IncreaseKeyBy1(database.DatabaseClient, socket.uuid)
+      .then(function(rs) {
+        debugWebSocket.info(
+          `Increased connections for key ${socket.uuid}. Total connection for token ${socket.uuid}: ${rs}`
+        );
+      });
+  }
 
   debugWebSocket.info(
     "New WebSocket Connection: ",
@@ -33,21 +45,56 @@ socketServer.on("connection", (socket, request) => {
     `( ${socketServer.connectionCount} total)`
   );
 
-  socket.on("close", (code, reason) => {
+  socket.on("close", async (code, reason) => {
+    let childrenProcess = GetChildrenProcess();
     socketServer.connectionCount--;
+    debugChildProcess.warn(
+      `[socketServer.js] ${childrenProcess.map(x => x.pid)}`
+    );
     debugWebSocket.info(
-      `Disconnected WebSocket, ${socketServer.connectionCount} total`
+      `Disconnected WebSocket ${socket.uuid}, ${socketServer.connectionCount} total`
+    );
+    let socketConnectionCount = await database.CountConnections(
+      database.DatabaseClient,
+      socket.uuid
     );
 
-    database
-      .DecreaseKeyBy1(database.DatabaseClient, socket.uuid)
-      .then(function(rs) {
-        debugWebSocket.info(
-          `Decreased connections for key ${socket.uuid}. Total connection for token ${socket.uuid}: ${rs}`
-        );
-      });
+    if (socketConnectionCount > 0) {
+      await database
+        .DecreaseKeyBy1(database.DatabaseClient, socket.uuid)
+        .then(function(rs) {
+          debugWebSocket.info(
+            `Decreased connections for key ${socket.uuid}. Total connection for token ${socket.uuid}: ${rs}`
+          );
+        });
+    }
 
-    // TODO: Check if sockerServer.connectionCount = 0 => Kill Child PID
+    // TODO: Check if total number of client with that id not exist => Kill Child PID
+    // socketServer.clients is a Set. Convert it to array to get the work done easier.
+    let clientSocketArray = Array.from(socketServer.clients);
+    let countConnections = clientSocketArray.filter(
+      client => client.uuid === socket.uuid
+    ).length;
+
+    // Kill the Child process & delete the key from redis
+    if (countConnections === 0) {
+      let childrenProcess = GetChildrenProcess();
+      debugServer.warn(
+        `[socketServer.js] All Children ${childrenProcess.map(
+          child => child.pid
+        )}`
+      );
+
+      let childToKill = childrenProcess.find(
+        child => child.streamToken === socket.uuid
+      );
+
+      if (!!childToKill) {
+        RemoveChildProcess(childToKill);
+      }
+
+      await database.RemoveKey(database.DatabaseClient, socket.uuid);
+    }
   });
 });
 

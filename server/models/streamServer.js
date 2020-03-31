@@ -20,7 +20,7 @@ const streamServer = http.createServer((request, response) => {
   });
 
   request.on("end", () => {
-    debugStream.info("close");
+    debugStream.info("stream close");
     if (request.socket.recording) {
       request.socket.recording.close();
     }

@@ -38,6 +38,23 @@ exports.KeyExisted = (redisClient, keyToCheck) => {
   });
 };
 
+exports.RemoveKey = (redisClient, keyToRemove) => {
+  debugDatabase.info(
+      `Client: Connected to Server at ${redisClient.connection_options.host}:${redisClient.connection_options.port}`
+  );
+  return new Promise((resolve, reject) => {
+    if (!redisClient.ready){
+      reject('Client not ready');
+    }
+
+    redisClient.del(keyToRemove, function(err, res){
+      if (err) reject(err);
+      debugDatabase.info(`Remove Key: ${res}`);
+      resolve(res);
+    })
+  })
+}
+
 exports.InitializeKey = (redisClient, keyToInitialize) => {
   debugDatabase.info(
     `Client: Connected to Server at ${redisClient.connection_options.host}:${redisClient.connection_options.port}`
@@ -47,8 +64,8 @@ exports.InitializeKey = (redisClient, keyToInitialize) => {
       reject("Client not ready");
     }
     redisClient.set(keyToInitialize, 0, function(err, res) {
-      debugDatabase.info(res);
       if (err) reject(err);
+      debugDatabase.info(`Initialize Key: ${res}`);
       resolve(res);
     });
   });
@@ -67,7 +84,7 @@ exports.IncreaseKeyBy1 = (redisClient, keyToIncrease) => {
           debugDatabase.error(`Error in database.js`);
           reject(err);
         }
-
+        debugDatabase.info(`Increase Key ${keyToIncrease} by 1: ${res}`);
         resolve(res);
       });
     });
@@ -87,7 +104,7 @@ exports.DecreaseKeyBy1 = (redisClient, keyToDecrease) => {
           debugDatabase.error(`Error in database.js`);
           reject(err);
         }
-
+        debugDatabase.info(`Decrease Key ${keyToDecrease} by 1: ${res}`);
         resolve(res);
       });
     });

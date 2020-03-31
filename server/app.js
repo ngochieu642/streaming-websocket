@@ -15,7 +15,7 @@ const WEBSOCKET_PORT = process.env.WEBSOCKET_PORT;
 const cameraRoutes = require("./routes/api/camera");
 
 // Utils
-const { childrenProcess } = require("./util/stream");
+const { GetChildrenProcess } = require("./util/stream");
 const { DatabaseClient } = require("./util/database");
 const {
   DEBUG_WEB_SOCKET: debugWebSocket,
@@ -53,7 +53,8 @@ process.on("SIGINT", function() {
   });
 
   debugServer.warn("Kill children process");
-  for (let child of childrenProcess) {
+  debugServer.info('All Child PIDs: ', GetChildrenProcess().map(x => x.pid));
+  for (let child of GetChildrenProcess()) {
     process.kill(-child.pid, "SIGTERM");
     process.kill(-child.pid, "SIGKILL");
     debugServer.info(`Child ${child.pid} killed`);
