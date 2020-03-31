@@ -98,7 +98,7 @@ process.stdin.resume();
 process.on("SIGINT", function() {
   debugServer.info("Got SIGINT.  Press Control-D to exit.");
 
-  debugServer.info('Flush all Key from Database');
+  debugServer.warn('Flush all Key from Database');
   DatabaseClient.flushall(function (err, succeeded) {
     if (err) debugDatabase.err(err);
     else debugDatabase.info(succeeded);
@@ -107,7 +107,7 @@ process.on("SIGINT", function() {
     debugServer.info('Connection to Client closed')
   });
 
-  debugServer.info("Kill children process");
+  debugServer.warn("Kill children process");
   for (let child of childrenProcess) {
     process.kill(-child.pid, "SIGTERM");
     process.kill(-child.pid, "SIGKILL");
