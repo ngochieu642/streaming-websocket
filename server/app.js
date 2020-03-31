@@ -7,8 +7,11 @@ const WebSocket = require("ws");
 const {
   DEBUG_WEB_SOCKET: debugWebSocket,
   DEBUG_STREAM: debugStream,
-  DEBUG_SERVER: debugServer
+  DEBUG_SERVER: debugServer,
+  DEBUG_DATABASE: debugDatabase,
 } = require("./util/constants").DEBUG;
+
+const { DatabaseClient } = require("./util/database");
 const STREAM_PORT = process.env.STREAM_PORT;
 const WEBSOCKET_PORT = process.env.WEBSOCKET_PORT;
 
@@ -94,6 +97,17 @@ app.use("/api/camera", cameraRoutes);
 process.stdin.resume();
 process.on("SIGINT", function() {
   debugServer.info("Got SIGINT.  Press Control-D to exit.");
+
+  debugServer.info('Flush all Key from Database');
+  DatabaseClient.flushall(function (err, succeeded) {
+    if (err) debugDatabase.err(err);
+    else debugDatabase.info(succeeded);
+  });
+  DatabaseClient.quit(function(){
+    debugServer.info('Connection to Client closed')
+  });
+
+  debugServer.info("Kill children process");
   for (let child of childrenProcess) {
     process.kill(-child.pid, "SIGTERM");
     process.kill(-child.pid, "SIGKILL");
