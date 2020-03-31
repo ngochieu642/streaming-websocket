@@ -28,4 +28,4 @@ services:
     image: redis:6.0-rc1-alpine3.11
     container_name: rtsp-mpeg-approach1-db
     ports: 
-      - "63790:63790"
+      - "63790:6379"

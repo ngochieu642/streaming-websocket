@@ -4,6 +4,10 @@ const http = require("http");
 const bodyParser = require("body-parser");
 const WebSocket = require("ws");
 
+const debugWebSocket = require("debug-level").log("server:websocket");
+const debugStream = require("debug-level").log("server:stream");
+const debugServer = require("debug-level").log("server:general");
+
 const STREAM_PORT = process.env.STREAM_PORT;
 const WEBSOCKET_PORT = process.env.WEBSOCKET_PORT;
 
@@ -24,8 +28,9 @@ socketServer.on("connection", (socket, request) => {
   socketServer.connectionCount++;
 
   socket.uuid = request.url.replace("/?token=", "");
-  console.log(
-    `New WebSocket Connection: `,
+
+  debugWebSocket.info(
+    "New WebSocket Connection: ",
     (request || socket.request).socket.remoteAddress,
     (request || socket.request).headers["user-agent"],
     `( ${socketServer.connectionCount} total)`
@@ -33,7 +38,7 @@ socketServer.on("connection", (socket, request) => {
 
   socket.on("close", (code, reason) => {
     socketServer.connectionCount--;
-    console.log(
+    debugWebSocket.info(
       `Disconnected WebSocket, ${socketServer.connectionCount} total`
     );
   });
@@ -52,7 +57,7 @@ const streamServer = http.createServer((request, response) => {
   let params = request.url.substr(1).split("/");
 
   response.connection.setTimeout(0);
-  console.log(
+  debugStream.info(
     `Stream Connected: ${request.socket.remoteAddress}:${request.socket.remotePort}`
   );
 
@@ -64,7 +69,7 @@ const streamServer = http.createServer((request, response) => {
   });
 
   request.on("end", () => {
-    console.log("close");
+    debugStream.info("close");
     if (request.socket.recording) {
       request.socket.recording.close();
     }
@@ -76,7 +81,7 @@ streamServer.listen(STREAM_PORT);
 
 // Routing
 const server = app.listen(3000, () => {
-  console.log("Server started on port " + server.address().port);
+  debugServer.info("Server started on port " + server.address().port);
 });
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -87,12 +92,11 @@ app.use("/api/camera", cameraRoutes);
 // Kill all child process
 process.stdin.resume();
 process.on("SIGINT", function() {
-  console.log("Got SIGINT.  Press Control-D to exit.");
+  debugServer.info("Got SIGINT.  Press Control-D to exit.");
   for (let child of childrenProcess) {
-    console.log(`${child.pid}`);
     process.kill(-child.pid, "SIGTERM");
     process.kill(-child.pid, "SIGKILL");
-    console.log("killed");
+    debugServer.info(`Child ${child.pid} killed`);
   }
   process.exit();
 });
