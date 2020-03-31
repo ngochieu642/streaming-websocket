@@ -26,7 +26,11 @@ exports.openCamera = async (req, res, next) => {
 
     if (keyExisted) {
       // Increase key by 1
+      debugCamera.info('Stream already existed');
+      res.json({ token: streamKey });
     } else {
+      debugCamera.info('Stream not open yet');
+
       // Open stream
       let shellFilePath = "./util/openStream.sh";
       setTimeout(
@@ -36,6 +40,9 @@ exports.openCamera = async (req, res, next) => {
         rtspLink,
         streamKey
       );
+
+      // Initialize Key in redis
+      database.InitializeKey(database.DatabaseClient, streamKey);
 
       // return token if success, else return failure code
       res.json({ token: streamKey });
