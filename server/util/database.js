@@ -84,7 +84,7 @@ exports.IncreaseKeyBy1 = (redisClient, keyToIncrease) => {
           debugDatabase.error(`Error in database.js`);
           reject(err);
         }
-        debugDatabase.info(`Increase Key ${keyToIncrease} by 1: ${res}`);
+        debugDatabase.info(`Increase Key ${keyToIncrease} by 1 (Total ${res})`);
         resolve(res);
       });
     });
@@ -104,7 +104,7 @@ exports.DecreaseKeyBy1 = (redisClient, keyToDecrease) => {
           debugDatabase.error(`Error in database.js`);
           reject(err);
         }
-        debugDatabase.info(`Decrease Key ${keyToDecrease} by 1: ${res}`);
+        debugDatabase.info(`Decrease Key ${keyToDecrease} by 1 (Total ${res})`);
         resolve(res);
       });
     });
