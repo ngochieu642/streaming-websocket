@@ -9,6 +9,8 @@ const {
   DEBUG_STREAM: debugStream
 } = require("../util/constants").DEBUG;
 
+const { SERVER_IP, WEBSOCKET_SERVER_IP } = require("../util/constants");
+
 const childrenProcess = [];
 
 exports.childrenProcess = childrenProcess;
@@ -26,12 +28,12 @@ exports.getStreamKey = input => {
 
 exports.getStreamLink = async input => {
   let streamKey = await this.getStreamKey(input);
-  return `http://localhost:${STREAM_PORT}/${streamKey}`;
+  return `${SERVER_IP}:${STREAM_PORT}/${streamKey}`;
 };
 
 exports.getWebSocketLink = async input => {
   let streamKey = await this.getStreamKey(input);
-  return `ws://localhost:${WEBSOCKET_PORT}/?token=${streamKey}`;
+  return `${WEBSOCKET_SERVER_IP}:${WEBSOCKET_PORT}/?token=${streamKey}`;
 };
 
 exports.openUsingScriptFile = async (pathToScriptFile, rtspLink) => {

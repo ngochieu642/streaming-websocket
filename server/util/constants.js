@@ -13,5 +13,7 @@ module.exports = {
     DEBUG_CAMERA: debugCamera,
     DEBUG_DATABASE: debugDatabase,
     DEBUG_CHILD_PROCESS: debugChildProcess
-  }
+  },
+  SERVER_IP: `http://localhost`,
+  WEBSOCKET_SERVER_IP: `ws://localhost`
 };
