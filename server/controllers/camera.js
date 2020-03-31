@@ -13,39 +13,33 @@ exports.openCamera = async (req, res, next) => {
 
   if (!rtspLink) res.json({ error: "missing rtsp link" });
 
-  let streamKey = hash.sha1(rtspLink);
+  let streamKey = await stream.getStreamKey(rtspLink);
 
-  // If already existed, plus 1 -> Count connections for each rtsp
   try {
     let keyExisted = await database.KeyExisted(
       database.DatabaseClient,
       streamKey
     );
 
-    debugCamera.info("Stream Key", streamKey);
-
     if (keyExisted) {
-      // Increase key by 1
-      debugCamera.info('Stream already existed');
-      res.json({ token: streamKey });
+      debugCamera.info("Stream already existed");
+      res.json({ token: await stream.getWebSocketLink(rtspLink) });
     } else {
-      debugCamera.info('Stream not open yet');
+      debugCamera.info("Stream not open yet");
 
       // Open stream
       let shellFilePath = "./util/openStream.sh";
-      setTimeout(
-        stream.openUsingScriptFile,
-        0,
+      let websocketLink = await stream.openUsingScriptFile(
         shellFilePath,
-        rtspLink,
-        streamKey
+        rtspLink
       );
+      debugCamera.info(`Stream Link: ${websocketLink}`);
 
       // Initialize Key in redis
-      database.InitializeKey(database.DatabaseClient, streamKey);
+      await database.InitializeKey(database.DatabaseClient, streamKey);
 
       // return token if success, else return failure code
-      res.json({ token: streamKey });
+      res.json({ stream: websocketLink });
     }
   } catch (err) {
     debugCamera.error("ERROR", err.toString());
