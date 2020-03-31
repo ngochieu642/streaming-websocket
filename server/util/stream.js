@@ -1,6 +1,6 @@
 const { execFile, spawn } = require("child_process");
 const STREAM_PORT = process.env.STREAM_PORT;
-const debugChildProcess = require("debug-level").log("server:childprocess");
+const { DEBUG_CHILD_PROCESS: debugChildProcess } = require("../util/constants").DEBUG;
 const childrenProcess = [];
 
 exports.childrenProcess = childrenProcess;
@@ -41,7 +41,9 @@ exports.openUsingScriptFile = (pathToScriptFile, rtspLink, streamKey) => {
 
     childrenProcess.push(child);
 
-    debugChildProcess.info(`Children PIDs [${childrenProcess.map(child => child.pid)}]`);
+    debugChildProcess.info(
+      `Children PIDs [${childrenProcess.map(child => child.pid)}]`
+    );
   } catch (err) {
     debugChildProcess.error(err);
   }

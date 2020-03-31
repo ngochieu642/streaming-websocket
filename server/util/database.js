@@ -1,6 +1,6 @@
 const redis = require("redis");
 const client = redis.createClient({ host: "192.168.100.11", port: 63790 });
-const debugDatabase = require("debug-level").log("server:database");
+const { DEBUG_DATABASE: debugDatabase } = require("../util/constants").DEBUG;
 
 exports.DatabaseClient = client;
 

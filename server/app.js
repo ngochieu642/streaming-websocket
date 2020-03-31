@@ -4,10 +4,11 @@ const http = require("http");
 const bodyParser = require("body-parser");
 const WebSocket = require("ws");
 
-const debugWebSocket = require("debug-level").log("server:websocket");
-const debugStream = require("debug-level").log("server:stream");
-const debugServer = require("debug-level").log("server:general");
-
+const {
+  DEBUG_WEB_SOCKET: debugWebSocket,
+  DEBUG_STREAM: debugStream,
+  DEBUG_SERVER: debugServer
+} = require("./util/constants").DEBUG;
 const STREAM_PORT = process.env.STREAM_PORT;
 const WEBSOCKET_PORT = process.env.WEBSOCKET_PORT;
 

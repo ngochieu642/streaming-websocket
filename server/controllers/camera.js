@@ -1,5 +1,5 @@
 const hash = require("object-hash");
-const debug = require("debug-level").log("server:camera");
+const { DEBUG_CAMERA: debugCamera } = require("../util/constants").DEBUG;
 
 const stream = require("../util/stream");
 const database = require("../util/database");
@@ -22,7 +22,7 @@ exports.openCamera = async (req, res, next) => {
       streamKey
     );
 
-    debug.info("Stream Key", streamKey);
+    debugCamera.info("Stream Key", streamKey);
 
     if (keyExisted) {
       // Increase key by 1
@@ -41,7 +41,7 @@ exports.openCamera = async (req, res, next) => {
       res.json({ token: streamKey });
     }
   } catch (err) {
-    debug.error("ERROR", err.toString());
+    debugCamera.error("ERROR", err.toString());
     res.json({ error: err.toString() });
   }
 };
