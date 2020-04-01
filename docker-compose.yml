@@ -13,6 +13,7 @@ services:
       - "8082:8082"
       - "3003:3000"
     command: "tail -f /dev/null"
+    # command: "npm start"
 
   frontend:
     image: nginx:1.15.1

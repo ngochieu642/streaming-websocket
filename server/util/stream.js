@@ -18,9 +18,9 @@ exports.RemoveChildProcess = childToKill => {
   childrenProcess = childrenProcess.filter(
       child => child.pid !== childToKill.pid
   );
-  process.kill(-childToKill.pid, "SIGTERM");
   process.kill(-childToKill.pid, "SIGKILL");
-  debugChildProcess.info(`[socketServer.js ] Child ${childToKill.pid} killed`);
+  process.kill(-childToKill.pid, "SIGTERM");
+  debugChildProcess.info(`[stream.js] Child ${childToKill.pid} killed`);
 };
 
 exports.AddChildProcess = childToAdd => {

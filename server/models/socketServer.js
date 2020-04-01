@@ -48,8 +48,8 @@ socketServer.on("connection", async (socket, request) => {
   socket.on("close", async (code, reason) => {
     let childrenProcess = GetChildrenProcess();
     socketServer.connectionCount--;
-    debugChildProcess.warn(
-      `[socketServer.js] ${childrenProcess.map(x => x.pid)}`
+    debugChildProcess.info(
+      `[socketServer.js] All Children Processes ${childrenProcess.map(x => x.pid)}`
     );
     debugWebSocket.info(
       `Disconnected WebSocket ${socket.uuid}, ${socketServer.connectionCount} total`
@@ -78,7 +78,6 @@ socketServer.on("connection", async (socket, request) => {
 
     // Kill the Child process & delete the key from redis
     if (countConnections === 0) {
-      let childrenProcess = GetChildrenProcess();
       debugServer.warn(
         `[socketServer.js] All Children ${childrenProcess.map(
           child => child.pid

@@ -3,6 +3,7 @@ const http = require("http");
 
 const { DEBUG_STREAM: debugStream } = require("../util/constants").DEBUG;
 const { socketServer } = require("./socketServer");
+const { RemoveChildProcess, GetChildrenProcess } = require('../util/stream');
 
 const streamServer = http.createServer((request, response) => {
   let params = request.url.substr(1).split("/");
@@ -24,6 +25,11 @@ const streamServer = http.createServer((request, response) => {
     if (request.socket.recording) {
       request.socket.recording.close();
     }
+
+    // TODO: Kill Child and remove Child PID from list
+    let childrenProcess = GetChildrenProcess();
+    let childToKill = childrenProcess.find(child => child.streamToken === params[0]);
+    if (!!childToKill) RemoveChildProcess(childToKill);
   });
 });
 
